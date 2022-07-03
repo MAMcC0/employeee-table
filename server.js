@@ -1,6 +1,6 @@
 const express = require('express');
 // Import and require mysql2
-
+const sqlQueries = require("./querydb");
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
 require("dotenv").config();
@@ -35,7 +35,7 @@ app.listen(PORT, () => {
 
 
 ///Create directory function////
-
+queryArr =[];
 
 const createDirectory = () => {
 
@@ -89,12 +89,6 @@ const createDirectory = () => {
             [
                 {
                     type:'input',
-                    name: 'id',
-                    message: "What is the employee's id?",
-
-                },
-                {
-                    type:'input',
                     name: 'first_name',
                     message: "What is the employee's first name?",
                 },
@@ -107,11 +101,6 @@ const createDirectory = () => {
                     type:'input',
                     name: 'role',
                     message: "What is the employee's role id?",
-                },
-                {
-                    type:'input',
-                    name: 'id',
-                    message: "What is the employee's id?",
                 },
                 {
                     type:'confirm',
@@ -129,36 +118,44 @@ const createDirectory = () => {
                         }
                     }
                 },
-                
+              
             ]
             
         )
-         .then(data => {
-            const employee = new Employee()
-             employee.id,
-                 employee.firstName,
-                 employee.lastName,
-                 employee.role
-         })   
+        .then(data => {
+            const employValues = (data.first_name, data.last_name, data.role, data.manager);
+            queryArr.push(employValues);
+            employeeQuery(queryArr);
+
+        });
+        directionQuestion();
     }
+
+
+
 
     function updateEmployee(){
         inquirer
         .prompt([
             {
                 type: 'input',
-                name: 'employeeUpdateId',
+                name: 'employeeUpdateName',
                 message: "What is the employee's name?",
             },
             {
-                type: 'list',
-                name: 'employeeUpdate',
+                type: 'input',
+                name: 'employeeUpdateRole',
                 message: "What is the employee's new role?",
 
                 ///render list of roles at that time before asking the new question
             },
         ])
+        .then(data => {
+            const employUpdate = (data.employeeUpdateName, data.employeeUpdateRole);
+            queryArr.push(employUpdate);
+            employeeUpdateQuery(queryArr);
 
+        });
     };
 
    
@@ -172,7 +169,7 @@ const createDirectory = () => {
                 message: "What is the name of the new role?",
             },
             {
-                type: 'input',
+                type: 'number',
                 name: 'newRoleSalary',
                 message: "What is the salary for this role?",
             },
@@ -182,6 +179,13 @@ const createDirectory = () => {
                 message: "What department does this role belong to?",
             },
         ])
+        .then(data => {
+            const roleAdd= (data.newRoleTitle, data.newRoleSalary, data.newRoleDepartment);
+            queryArr.push(roleAdd);
+            roleAdding(queryArr);
+
+        });
+
     };
 
 
@@ -194,6 +198,11 @@ const createDirectory = () => {
                 message: "What is the new department's name?",
             },
         ])
+        .then(data => {
+            const departmentNew = (data.newDepartment);
+            employeeUpdateQuery(departmentNew);
+
+        });
     };
 
 
