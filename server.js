@@ -87,145 +87,165 @@ const createDirectory = () => {
                         addDepartment();
                         break;
                     case 'Quit':
-                        end();
                         break;
                 }
             })
-    };
-    directionQuestion()
-
-    function createEmployee() {
-        inquirer
-            .prompt(
-                [
-                    {
-                        type: 'input',
-                        name: 'first_name',
-                        message: "What is the employee's first name?",
-                    },
-                    {
-                        type: 'input',
-                        name: 'last_name',
-                        message: "What is the employee's last name?",
-                    },
-                    {
-                        type: 'input',
-                        name: 'role',
-                        message: "What is the employee's role id?",
-                    },
-                    {
-                        type: 'confirm',
-                        name: 'managerConfirm',
-                        message: "Does this employee have a manager?",
-                        default: true,
-                    }])
-            .then(
-                renderManagers()
-            )
-            .then(
-                inquirer
-                    .prompt([
-                        {
-                            type: 'input',
-                            name: 'manager',
-                            message: "What is the manager's name?",
-                            when: (data) => {
-                                if (data.managerConfirm === true) {
-                                    return true;
-                                }
-                            }
-                        },
-
-                    ]
-
-                    ))
-            .then(data => {
-                const employValues = (data.first_name, data.last_name, data.role, data.manager);
-                employeeQuery(employValues);
-
-            });
-            directionQuestion()
     }
-   
+    directionQuestion();
+};
 
 
-
-    function updateEmployee() {
-        displayAllEmployees()
-
-
-        inquirer
-            .prompt([
+function createEmployee() {
+    // renderManagers()
+    inquirer
+        .prompt(
+            [
                 {
-                    type: 'number',
-                    name: 'employeeUpdateid',
-                    message: "What is the employee's id?",
+                    type: 'input',
+                    name: 'first_name',
+                    message: "What is the employee's first name?",
                 },
                 {
                     type: 'input',
-                    name: 'employeeUpdateRole',
-                    message: "What is the employee's new role?",
-
-
+                    name: 'last_name',
+                    message: "What is the employee's last name?",
                 },
-            ])
-            .then(data => {
-                const employUpdate = (data.employeeUpdateId, data.employeeUpdateRole);
-
-                employeeUpdateQuery(employUpdate);
-
-            });
-        
-    };
-
-
-
-    function addRole() {
-        viewDepartments()
-            .then(
-                inquirer
-                    .prompt([
-                        {
-                            type: 'input',
-                            name: 'newRoleTitle',
-                            message: "What is the name of the new role?",
-                        },
-                        {
-                            type: 'number',
-                            name: 'newRoleSalary',
-                            message: "What is the salary for this role?",
-                        },
-                        {
-                            type: 'input',
-                            name: 'newRoleDepartment',
-                            message: "What is the id of the department this role belongs to?",
-                        },
-                    ])
-                    .then(data => {
-                        const roleAdd = (data.newRoleTitle, data.newRoleSalary, data.newRoleDepartment);
-                        roleAdding(roleAdd);
-
-                    }));
-        
-
-    };
-
-
-    function addDepartment() {
-        inquirer
-            .prompt([
                 {
                     type: 'input',
-                    name: 'newDepartment',
-                    message: "What is the new department's name?",
+                    name: 'role_id',
+                    message: "What is the employee's role id?",
+                },
+                {
+                    type: 'confirm',
+                    name: 'managerConfirm',
+                    message: "Does this employee have a manager?",
+
+                },
+                {
+                    type: 'input',
+                    name: 'manager_id',
+                    message: "What is the manager's name?",
+                    when: (data) => {
+                        if (data.managerConfirm === true) {
+                            return true;
+                        }
+                    }
                 },
             ])
-            .then(data => {
-                const departmentNew = (data.newDepartment);
-                departmentAdding(departmentNew);
+        .then(data => {
+
+            const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);`;
+            const values = [data.first_name, data.last_name, data.role_id, data.manager_id];
+
+            db.query(sql, values, (err, res) => {
+                if (err) {
+                    console.log(err)
+                }
+                console.log('Added to database!')
+            });
+            createDirectory();
+
+
+        });
+
+}
+
+
+
+
+function updateEmployee() {
+    inquirer
+        .prompt([
+            {
+                type: 'number',
+                name: 'id',
+                message: "What is the employee's id?",
+            },
+            {
+                type: 'input',
+                name: 'role_id',
+                message: "What is the id of the employee's new role?",
+
+
+            },
+        ])
+        .then(data => {
+            const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+            const values = [data.role_id, data.id];
+
+            db.query(sql, values, (err, res) => {
+                if (err) {
+                    console.log(err);
+                }
+                console.log("Role updated!")
+            });
+        
+            createDirectory()
+        });
+
+};
+
+
+
+function addRole() {
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: "What is the name of the new role?",
+            },
+            {
+                type: 'number',
+                name: 'salary',
+                message: "What is the salary for this role?",
+            },
+            {
+                type: 'input',
+                name: 'department_id',
+                message: "What is the id of the department this role belongs to?",
+            },
+        ])
+        .then(data => {
+            const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?);`;
+            const values = [data.title, data.salary, data.department_id];
+            db.query(sql, values, (err, res) => {
+                if (err) {
+                    console.error(err)
+                }
+                console.log("Role added!");
 
             });
-    };
+            createDirectory()
+        });
+
+
+};
+
+
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'department_name',
+                message: "What is the new department's name?",
+            },
+        ])
+        .then(data => {
+            const sql = `INSERT INTO department (department_name) VALUES (?);`;
+            const value = data.department_name;
+            db.query(sql, value, (err, res) => {
+                if (err) {
+                    console.log(err);
+                }
+                console.log("Department Added!")
+            });
+
+            createDirectory();
+        });
+
 };
 
 
@@ -248,10 +268,10 @@ function displayAllEmployees() {
         JOIN department
         ON roles.department_id = department.id; `;
     db.query(sql, (err, res) => {
-        return console.table(res);
+        console.table(res);
 
     });
-
+    createDirectory()
 };
 
 function viewRoles() {
@@ -274,6 +294,7 @@ function viewRoles() {
             console.error(err)
         };
     });
+    createDirectory()
 };
 
 
@@ -288,81 +309,25 @@ function viewDepartments() {
             console.error(err)
         };
     });
+    createDirectory()
 };
 
-function employeeQuery({ first_name, last_name, role, manager }) {
-    const sql = `INSERT INTO employee(first_name, last_name, employee.role, manager) VALUES (?,?,?,?);`;
-    const values = [first_name, last_name, role, manager];
-
-    db.query(sql, values, (err, res) => {
-        try {
-            if (res) {
-                console.table(res);
-            }
-        } catch (err) {
-            console.error(err)
-        };
-    });
-};
 
 function employeeUpdateQuery({ id, role }) {
-    async function getRoleId() {
-        const sqlOne = `SELECT id FROM roles WHERE title = '?';`;
-        const valueOne = role;
-        db.query(sqlOne, valueOne, (err, res) => {
-            if (res) {
-                return role.id;
-            } else {
 
-                console.error(err)
-            };
-        })
-
-    };
 
     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-    const role_id = getRoleId();
     const values = (role_id, id);
 
     db.query(sql, values, (err, res) => {
-        try {
-            if (res) {
-                console.table(res);
-            }
-        } catch (err) {
-            console.error(err)
-        };
+        if (err) {
+            console.log(err);
+        }
+        console.log("Role updated!")
     });
+    createDirectory()
 };
 
-
-function roleAdding({ title, salary, department_id }) {
-    const sql = `INSERT INTO role(title, salary, department_id) VALUES (?,?,?);`;
-    const values = (title, salary, department_id);
-    db.query(sql, values, (err, res) => {
-        try {
-            if (res) {
-                console.table(res);
-            }
-        } catch (err) {
-            console.error(err)
-        };
-    });
-}
-
-function departmentAdding({ department_name }) {
-    const sql = `INSERT INTO department (department_name) VALUES (?);`;
-    const value = department_name;
-    db.query(sql, value, (err, res) => {
-        try {
-            if (res) {
-                console.table(res);
-            }
-        } catch (err) {
-            console.error(err)
-        };
-    });
-}
 
 
 

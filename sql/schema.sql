@@ -19,7 +19,7 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE employee (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
     role_id INT,
@@ -27,6 +27,5 @@ CREATE TABLE employee (
     REFERENCES roles(id)
     ON DELETE SET NULL,
     manager_id INT,
-    FOREIGN KEY(manager_id)
     REFERENCES employee(id)
 );
