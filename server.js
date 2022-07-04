@@ -63,6 +63,7 @@ const createDirectory = () => {
                 ]
 
             )
+            //switch case for all functions
             .then(answer => {
                 switch (answer.choice) {
                     case 'View All Employees':
@@ -136,7 +137,7 @@ function createEmployee() {
 
             const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);`;
             const values = [data.first_name, data.last_name, data.role_id, data.manager_id];
-
+//query and console table
             db.query(sql, values, (err, res) => {
                 if (err) {
                     console.log(err)
@@ -152,7 +153,7 @@ function createEmployee() {
 
 
 
-
+//updating an employee role
 function updateEmployee() {
     inquirer
         .prompt([
@@ -169,6 +170,8 @@ function updateEmployee() {
 
             },
         ])
+
+        //query and update
         .then(data => {
             const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
             const values = [data.role_id, data.id];
@@ -207,6 +210,8 @@ function addRole() {
                 message: "What is the id of the department this role belongs to?",
             },
         ])
+
+        //query and update of role
         .then(data => {
             const sql = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?);`;
             const values = [data.title, data.salary, data.department_id];
@@ -233,6 +238,8 @@ function addDepartment() {
                 message: "What is the new department's name?",
             },
         ])
+
+        //adding department name
         .then(data => {
             const sql = `INSERT INTO department (department_name) VALUES (?);`;
             const value = data.department_name;
@@ -273,7 +280,7 @@ function displayAllEmployees() {
     });
     createDirectory()
 };
-
+//displays all roles
 function viewRoles() {
     const sql = ` SELECT 
         roles.title,
@@ -297,7 +304,7 @@ function viewRoles() {
     createDirectory()
 };
 
-
+// displays all departments
 function viewDepartments() {
     const sql = `SELECT * FROM department;`;
     db.query(sql, (err, res) => {
@@ -314,7 +321,7 @@ function viewDepartments() {
 
 
 function employeeUpdateQuery({ id, role }) {
-
+//update employee role
 
     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
     const values = (role_id, id);
