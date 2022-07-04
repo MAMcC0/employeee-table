@@ -2,7 +2,24 @@ const mysql = require('mysql2');
 const db = require('./server');
 
  function displayAllEmployees(){
-    const sql = `SELECT * FROM employee;`;
+    const sql = `SELECT employee.id, 
+    employee.first_name,
+    employee.last_name, 
+    employee.role_id,
+    roles.title, 
+    roles.salary, 
+    roles.department_id,
+    department.department_name, 
+    employee.manager_id,
+    CONCAT(manager.first_name, ' ', manager.last_name) 
+    AS MANAGER
+	FROM employee employee
+    LEFT JOIN employee manager
+    ON employee.manager_id = manager.id
+	JOIN roles
+    ON roles.id=employee.role_id
+	JOIN department
+    ON roles.department_id = department.id; `;
     db.query(sql, (err,res) => {
      try {
         if (res){
@@ -15,7 +32,15 @@ const db = require('./server');
 };
 
 function viewRoles(){
-    const sql = `SELECT * FROM role;`;
+    const sql = ` SELECT 
+    roles.title,
+     roles.id, 
+     roles.salary,
+    department.department_name
+    FROM roles
+	RIGHT JOIN department
+    ON roles.department_id = department.id
+     ;`;
     db.query(sql, (err, res) => {
        try {if(res){
         renderRoleAll(res);
@@ -41,7 +66,7 @@ function viewDepartments(){
 };
 
 function employeeQuery({first_name, last_name, role, manager}){
-    const sql = `INSERT INTO employee(first_name, last_name, role, manager) VALUES (?,?,?,?);`;
+    const sql = `INSERT INTO employee(first_name, last_name, employee.role, manager) VALUES (?,?,?,?);`;
     const values = [first_name, last_name, role, manager];
 
     db.query(sql, values, (err, res) => {
@@ -57,7 +82,7 @@ function employeeQuery({first_name, last_name, role, manager}){
 
 function employeeUpdateQuery({id, role}){
    async function getRoleId(){
-        const sqlOne = `SELECT id FROM role WHERE id = ?;`;
+        const sqlOne = `SELECT id FROM roles WHERE title = '?';`;
         const valueOne = role;
         db.query(sqlOne,  valueOne, (err, res) => {
              if(res){
@@ -71,8 +96,8 @@ function employeeUpdateQuery({id, role}){
     };
     
  const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-    const role_id = await getRoleId();
-    const values = (id, role_id);
+    const role_id = getRoleId();
+    const values = (role_id, id);
 
     db.query(sql, values, (err, res) => {
         try {

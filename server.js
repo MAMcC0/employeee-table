@@ -3,6 +3,8 @@ const express = require('express');
 const queryDb = require("./querydb");
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
+const logo = require('asciiart-logo');
+
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3001;
@@ -38,6 +40,15 @@ app.listen(PORT, () => {
 
 
 const createDirectory = () => {
+    
+    console.log(
+        logo({
+        name: 'Employee Tracker',
+        borderColor: 'white',
+        logoColor: 'bold-white',
+        })
+    .render()
+    );
 
     const directionQuestion = () => {
         inquirer
